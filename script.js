@@ -1,3 +1,5 @@
+var pendente = false;
+
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
@@ -62,7 +64,7 @@ $("#user").on("blur", function (){
         form = $("#form"); 
 
     $.ajax({
-        url: "form/username.php",
+        url: "username.php",
         method: "post",
         data: {
             "username": $(this).val()
@@ -79,3 +81,44 @@ $("#user").on("blur", function (){
         dataType: "json"
     });
 });
+
+$(".input").keyup(function(){
+    var value = $(this).val().trim();
+    $(this).val(value);
+})
+
+$("#mail").on("input",function(){
+
+    var email=$(this).val().trim();
+    var el= $(this);
+   
+    if (validateEmail(email)) {
+        if (!pendente) {
+            $.post(
+                "email.php",
+                {
+                    email:email
+                },
+                function (data) {
+                    if  (!data.valid) {
+                        el.removeClass("is-valid");
+                        el.addClass("is-invalid");
+                    }else {
+                        el.removeClass("is-invalid");
+                        el.addClass("is-valid");
+                    }
+
+                    pendente = false;
+                },
+                "json"
+            );
+
+            pendente = true;
+        }
+   
+       
+    } else {
+        el.removeClass("is-valid");
+        el.addClass("is-invalid");
+    }
+})
